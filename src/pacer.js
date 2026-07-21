@@ -462,6 +462,35 @@ let PACER = {
     }
   },
 
+  // Returns the case id a docket report page asserts about itself: the
+  // strict majority of the de_caseid values in its document links' goDLS()
+  // handlers. Majority, because consolidated/MDL sheets legitimately link
+  // member cases' documents. Returns undefined when there is no goDLS
+  // evidence or the top ids are tied.
+  getCaseIdFromDocketDisplayLinks: function (links) {
+    let tally = {};
+    for (let i = 0; i < links.length; i++) {
+      if (!PACER.isDoc1Url(links[i].href)) {
+        continue;
+      }
+      let goDLS = PACER.parseGoDLSFunction(links[i].getAttribute('onclick'));
+      if (goDLS && goDLS.de_caseid && goDLS.de_caseid !== '0') {
+        tally[goDLS.de_caseid] = (tally[goDLS.de_caseid] || 0) + 1;
+      }
+    }
+    let best;
+    let tied = false;
+    for (let caseId of Object.keys(tally)) {
+      if (best === undefined || tally[caseId] > tally[best]) {
+        best = caseId;
+        tied = false;
+      } else if (tally[caseId] === tally[best]) {
+        tied = true;
+      }
+    }
+    return tied ? undefined : best;
+  },
+
   // Given a URL that satisfies isDocketQueryUrl, gets its case number.
   getCaseNumberFromUrls: function (urls) {
     // Iterate over an array of URLs and get the case number from the
