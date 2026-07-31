@@ -508,6 +508,27 @@ describe('The ContentDelegate class', function () {
           await cd.handleDocketDisplayPage();
           expect(dispatchBackgroundFetch).not.toHaveBeenCalled();
         });
+
+        it('when a fresh tab has no storage entry at all', async function () {
+          const cd = new ContentDelegate(
+            tabId,
+            docketDisplayUrl,
+            undefined,
+            'canb',
+            undefined,
+            undefined,
+            []
+          );
+          // A tab that never stored anything yields undefined, not {}.
+          window.chrome.storage.local.get = jasmine
+            .createSpy()
+            .and.callFake((_, cb) => {
+              cb({ options: { recap_enabled: true } });
+            });
+          dispatchBackgroundFetch = jasmine.createSpy();
+          await cd.handleDocketDisplayPage();
+          expect(dispatchBackgroundFetch).not.toHaveBeenCalled();
+        });
       });
 
       describe('when the history state is already set', function () {

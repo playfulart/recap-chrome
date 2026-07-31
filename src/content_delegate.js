@@ -277,7 +277,7 @@ ContentDelegate.prototype.handleDocketDisplayPage = async function () {
   // documents, so the goDLS plurality only speaks when nothing else does.
   if (!this.pacer_case_id) {
     const pageCaseId = PACER.getCaseIdFromDocketDisplayLinks(this.links);
-    const tabStorage = await getItemsFromStorage(this.tabId);
+    const tabStorage = (await getItemsFromStorage(this.tabId)) || {};
     if (pageCaseId) {
       if (tabStorage.caseId && tabStorage.caseId !== pageCaseId) {
         console.warn(
