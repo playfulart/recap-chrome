@@ -462,11 +462,11 @@ let PACER = {
     }
   },
 
-  // Returns the case id a docket report page asserts about itself: the
-  // strict majority of the de_caseid values in its document links' goDLS()
-  // handlers. Majority, because consolidated/MDL sheets legitimately link
-  // member cases' documents. Returns undefined when there is no goDLS
-  // evidence or the top ids are tied.
+  // Returns the most common (plurality) `de_caseid` across the page's
+  // document links' `goDLS()` handlers. Plurality is intentional because
+  // consolidated/MDL docket sheets can legitimately link documents from
+  // multiple member cases. Returns `undefined` when there is no `goDLS`
+  // evidence or when the most common case IDs are tied.
   getCaseIdFromDocketDisplayLinks: function (links) {
     // Count how many document links point to each case ID. The case ID
     // appearing most often is likely the case represented by the docket page.

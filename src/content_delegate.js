@@ -274,7 +274,7 @@ ContentDelegate.prototype.handleDocketDisplayPage = async function () {
   // the LAST resort — it can belong to a different case viewed earlier in
   // this tab. An id the page context already provided is never overridden:
   // consolidated member dockets legitimately link the lead case's
-  // documents, so the goDLS majority only speaks when nothing else does.
+  // documents, so the goDLS plurality only speaks when nothing else does.
   if (!this.pacer_case_id) {
     const pageCaseId = PACER.getCaseIdFromDocketDisplayLinks(this.links);
     const tabStorage = await getItemsFromStorage(this.tabId);
