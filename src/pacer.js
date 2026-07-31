@@ -468,27 +468,36 @@ let PACER = {
   // member cases' documents. Returns undefined when there is no goDLS
   // evidence or the top ids are tied.
   getCaseIdFromDocketDisplayLinks: function (links) {
-    let tally = {};
-    for (let i = 0; i < links.length; i++) {
-      if (!PACER.isDoc1Url(links[i].href)) {
-        continue;
-      }
-      let goDLS = PACER.parseGoDLSFunction(links[i].getAttribute('onclick'));
+    // Count how many document links point to each case ID. The case ID
+    // appearing most often is likely the case represented by the docket page.
+    const caseIdCounts = {};
+    for (const link of Array.from(links)) {
+      if (!PACER.isDoc1Url(link.href)) continue;
+
+      const goDLS = PACER.parseGoDLSFunction(link.getAttribute('onclick'));
       if (goDLS && goDLS.de_caseid && goDLS.de_caseid !== '0') {
-        tally[goDLS.de_caseid] = (tally[goDLS.de_caseid] || 0) + 1;
+        caseIdCounts[goDLS.de_caseid] =
+          (caseIdCounts[goDLS.de_caseid] ?? 0) + 1;
       }
     }
-    let best;
-    let tied = false;
-    for (let caseId of Object.keys(tally)) {
-      if (best === undefined || tally[caseId] > tally[best]) {
-        best = caseId;
-        tied = false;
-      } else if (tally[caseId] === tally[best]) {
-        tied = true;
-      }
-    }
-    return tied ? undefined : best;
+
+    // Convert the counts object into an array of [caseId, count] pairs
+    // and sort descending so the most frequently linked case is first.
+    const sortedCaseIds = Object.entries(caseIdCounts).sort(
+      (a, b) => b[1] - a[1]
+    );
+
+    // No valid case IDs were found.
+    if (sortedCaseIds.length === 0) return undefined;
+
+    const [mostLinkedCaseId, mostLinkedCount] = sortedCaseIds[0];
+    const [, secondMostLinkedCount] = sortedCaseIds[1] ?? [];
+
+    // If multiple case IDs have the same highest count, we cannot determine
+    // which case is the correct one, so avoid returning an arbitrary result.
+    const hasTieForFirst = mostLinkedCount === secondMostLinkedCount;
+
+    return hasTieForFirst ? undefined : mostLinkedCaseId;
   },
 
   // Given a URL that satisfies isDocketQueryUrl, gets its case number.
