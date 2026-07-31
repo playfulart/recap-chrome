@@ -286,8 +286,8 @@ ContentDelegate.prototype.handleDocketDisplayPage = async function () {
         );
       }
       this.pacer_case_id = pageCaseId;
-      // Correct the cached id so caseless pages downstream (e.g.
-      // attachment menus) inherit the right one.
+      // Seed the tab's cached case ID so a later docket-report load in this
+      // same tab starts with the correct case ID instead of a stale one.
       await saveCaseIdinTabStorage({ tabId: this.tabId }, pageCaseId);
     } else {
       this.pacer_case_id = tabStorage.caseId;
